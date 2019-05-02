@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Cloning open-power/op-build and setting up Swift Config Files ...";
+
+
+# Exit from the script on any fail
+set -e
+
+# Clone open-power/op-build.  Using master branch for now
+git clone --recursive https://github.com/open-power/op-build.git
+
+# Add symbolic links inside op-build for the swift config files
+ln -s ../../../swift_defconfig -t op-build/openpower/configs/
+ln -s ../../../../swift.config -t op-build/openpower/configs/hostboot/
+

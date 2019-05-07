@@ -1,2 +1,3 @@
 # Ignore op-build directory
 op-build*
+swift_defconfig

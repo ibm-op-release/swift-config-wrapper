@@ -1,0 +1,61 @@
+From c86a78a3f258b412e82660dedfd4fce0eef1a98e Mon Sep 17 00:00:00 2001
+From: Mike Baiocchi <mbaiocch@us.ibm.com>
+Date: Tue, 7 May 2019 15:33:30 -0500
+Subject: [PATCH 3/3] Changing the creation of swift_defconfig to a patch file
+
+This commit updates how the swift_defconfig file is created.  Now,
+the swift_setup script will cp down the latest witherspoon_defconfig
+file and, using the patch file, will create the swift_defconfig file.
+This allows all non-swift/axone-related op-build changes that are
+made to witherspoon_defconfig to be picked up automatically.
+---
+ swift_defconfig | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
+
+diff --git a/swift_defconfig b/swift_defconfig
+index 5757d31..8099db6 100644
+--- a/swift_defconfig
++++ b/swift_defconfig
+@@ -43,22 +43,25 @@ BR2_TARGET_ROOTFS_CPIO_XZ=y
+ BR2_TARGET_ROOTFS_INITRAMFS=y
+ BR2_OPENPOWER_PLATFORM=y
+ BR2_OPENPOWER_POWER9=y
+-BR2_HOSTBOOT_CONFIG_FILE="witherspoon.config"
+-BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT_VALUE="witherspoon-xml"
+-BR2_OPENPOWER_MACHINE_XML_VERSION="a6f4df381b970f62ce86bd5d43e0b4fa6c90f5b3"
+-BR2_OPENPOWER_MACHINE_XML_FILENAME="witherspoon.xml"
+-BR2_OPENPOWER_SYSTEM_XML_FILENAME="WITHERSPOON_hb.system.xml"
+-BR2_OPENPOWER_MRW_XML_FILENAME="WITHERSPOON_hb.mrw.xml"
+-BR2_OPENPOWER_BIOS_XML_FILENAME="WITHERSPOON_bios.xml"
+-BR2_OPENPOWER_PNOR_XML_LAYOUT_FILENAME="defaultPnorLayout_64.xml"
+-BR2_OPENPOWER_CONFIG_NAME="witherspoon"
+-BR2_OPENPOWER_PNOR_FILENAME="witherspoon.pnor"
+-BR2_HOSTBOOT_BINARY_SBE_FILENAME="nimbus_sbe.img.ecc"
++BR2_HOSTBOOT_CONFIG_FILE="swift.config"
++BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT=n
++BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT_VALUE="swift-xml"
++BR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT=y
++BR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT_VALUE="git@github.com:open-power/swift-xml.git"
++BR2_OPENPOWER_MACHINE_XML_VERSION="180a43b301fd880125152e17ba51616545263933"
++BR2_OPENPOWER_MACHINE_XML_FILENAME="swift.xml"
++BR2_OPENPOWER_SYSTEM_XML_FILENAME="SWIFT_hb.system.xml"
++BR2_OPENPOWER_MRW_XML_FILENAME="SWIFT_hb.mrw.xml"
++BR2_OPENPOWER_BIOS_XML_FILENAME="SWIFT_bios.xml"
++BR2_OPENPOWER_PNOR_XML_LAYOUT_FILENAME="axonePnorLayout_64.xml"
++BR2_OPENPOWER_CONFIG_NAME="swift"
++BR2_OPENPOWER_PNOR_FILENAME="swift.pnor"
++BR2_HOSTBOOT_BINARY_SBE_FILENAME="axone_sbe.img.ecc"
+ BR2_HOSTBOOT_BINARY_SBEC_FILENAME="centaur_sbec_pad.img.ecc"
+-BR2_HOSTBOOT_BINARY_WINK_FILENAME="p9n.ref_image.hdr.bin.ecc"
++BR2_HOSTBOOT_BINARY_WINK_FILENAME="p9a.ref_image.hdr.bin.ecc"
+ BR2_IMA_CATALOG_FILENAME="ima_catalog.bin"
+-BR2_OPENPOWER_TARGETING_BIN_FILENAME="WITHERSPOON_HB.targeting.bin"
+-BR2_OPENPOWER_TARGETING_ECC_FILENAME="WITHERSPOON_HB.targeting.bin.ecc"
++BR2_OPENPOWER_TARGETING_BIN_FILENAME="SWIFT_HB.targeting.bin"
++BR2_OPENPOWER_TARGETING_ECC_FILENAME="SWIFT_HB.targeting.bin.ecc"
+ BR2_BUILD_PNOR_SQUASHFS=y
+ BR2_PACKAGE_PETITBOOT=y
+ BR2_PACKAGE_PETITBOOT_MTD=y
+-- 
+1.8.2.2
+

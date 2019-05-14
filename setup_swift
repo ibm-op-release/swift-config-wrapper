@@ -2,14 +2,72 @@
 
 echo "Cloning open-power/op-build and setting up Swift Config Files ...";
 
+###################################################################
+# Setup constants used below
+#
+# a) This constant is likely to change:
+SWIFT_BR2_OPENPOWER_MACHINE_XML_VERSION=180a43b301fd880125152e17ba51616545263933
 
+# b) These contants are unlikely to change
+WD_FILE=op-build/openpower/configs/witherspoon_defconfig
+SD_FILE=swift_defconfig
+
+
+###################################################################
 # Exit from the script on any fail
 set -e
 
+
+###################################################################
 # Clone open-power/op-build.  Using master branch for now
 git clone --recursive https://github.com/open-power/op-build.git
 
+
+###################################################################
+# Create swift_defconfig from witherspoon_defconfig
+# 1) Remove witherspoon-specific values:
+cat $WD_FILE \
+|grep -v BR2_HOSTBOOT_CONFIG_FILE \
+|grep -v BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT \
+|grep -v BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT_VALUE \
+|grep -v BR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT \
+|grep -v BR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT_VALUE \
+|grep -v BR2_OPENPOWER_MACHINE_XML_VERSION \
+|grep -v BR2_OPENPOWER_MACHINE_XML_FILENAME \
+|grep -v BR2_OPENPOWER_SYSTEM_XML_FILENAME \
+|grep -v BR2_OPENPOWER_MRW_XML_FILENAME \
+|grep -v BR2_OPENPOWER_BIOS_XML_FILENAME \
+|grep -v BR2_OPENPOWER_PNOR_XML_LAYOUT_FILENAME \
+|grep -v BR2_OPENPOWER_CONFIG_NAME \
+|grep -v BR2_OPENPOWER_PNOR_FILENAME \
+|grep -v BR2_HOSTBOOT_BINARY_SBE_FILENAME \
+|grep -v BR2_HOSTBOOT_BINARY_WINK_FILENAME \
+|grep -v BR2_OPENPOWER_TARGETING_BIN_FILENAME \
+|grep -v BR2_OPENPOWER_TARGETING_ECC_FILENAME \
+> $SD_FILE
+
+# 2) Set swift-specific values:
+sed -i '1iBR2_OPENPOWER_CONFIG_NAME=\"swift\"' $SD_FILE
+sed -i '2iBR2_HOSTBOOT_CONFIG_FILE=\"swift.config\"' $SD_FILE
+sed -i '3iBR2_OPENPOWER_MACHINE_XML_VERSION="'$SWIFT_BR2_OPENPOWER_MACHINE_XML_VERSION'"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT=n' $SD_FILE
+sed -i '4iBR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT_VALUE=\"swift-xml\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT=y' $SD_FILE
+sed -i '4iBR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT_VALUE=\"git@github.com:open-power/swift-xml.git\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_MACHINE_XML_FILENAME=\"swift.xml\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_SYSTEM_XML_FILENAME=\"SWIFT_hb.system.xml\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_MRW_XML_FILENAME=\"SWIFT_hb.mrw.xml\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_BIOS_XML_FILENAME=\"SWIFT_bios.xml\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_PNOR_XML_LAYOUT_FILENAME=\"axonePnorLayout_64.xml\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_PNOR_FILENAME=\"swift.pnor\"' $SD_FILE
+sed -i '4iBR2_HOSTBOOT_BINARY_SBE_FILENAME=\"axone_sbe.img.ecc\"' $SD_FILE
+sed -i '4iBR2_HOSTBOOT_BINARY_WINK_FILENAME=\"p9a.ref_image.hdr.bin.ecc\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_TARGETING_BIN_FILENAME=\"SWIFT_HB.targeting.bin\"' $SD_FILE
+sed -i '4iBR2_OPENPOWER_TARGETING_ECC_FILENAME=\"SWIFT_HB.targeting.bin.ecc\"' $SD_FILE
+
+
+###################################################################
 # Add symbolic links inside op-build for the swift config files
-ln -s ../../../swift_defconfig -t op-build/openpower/configs/
-ln -s ../../../../swift.config -t op-build/openpower/configs/hostboot/
+ln -fs ../../../swift_defconfig -t op-build/openpower/configs/
+ln -fs ../../../../swift.config -t op-build/openpower/configs/hostboot/
 

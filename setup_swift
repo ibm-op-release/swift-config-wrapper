@@ -1,17 +1,9 @@
 #!/bin/bash
 
-echo "Cloning open-power/op-build and setting up Swift Config Files ...";
 
 ###################################################################
-# Setup constants used below
-#
-# a) This constant is likely to change:
+# Setup constant used below
 SWIFT_BR2_OPENPOWER_MACHINE_XML_VERSION=180a43b301fd880125152e17ba51616545263933
-
-# b) These contants are unlikely to change
-WD_FILE=op-build/openpower/configs/witherspoon_defconfig
-SD_FILE=swift_defconfig
-
 
 ###################################################################
 # Exit from the script on any fail
@@ -19,9 +11,134 @@ set -e
 
 
 ###################################################################
-# Clone open-power/op-build.  Using master branch for now
-git clone --recursive https://github.com/open-power/op-build.git
+# Usage info
+show_help() {
+cat << EOF
+Usage: ${0##*/} [-h] [-v] [--op-build-dir=OP_BULD_DIR] [--skip-link]
 
+This script takes the witherspoon_defconfig file from OP_BUILD_DIR and creates
+the swift_defconfig file by replacing swift-specific fields.  It then links the
+swift_defconfig and swift.config files into the right sub-directories of
+OP_BUILD_DIR.
+NOTE: If no OP_BUILD_DIR is provided, this script will clone op-build into the
+current directory.
+
+    -h,--help                   Display this help and exit
+    -v                          Verbose mode. Can be used multiple times for
+                                increased verbosity.
+    --op-build-dir=OP_BULD_DIR  Uses the directory (incuding its path) for
+                                op-build repo instead of the default ./op-build
+    ---skip-link                Skips linking the config files into the right
+                                sub-directories of OP_BUILD_DIR
+
+Example - No argements:
+    ./setup_swift
+
+Example - All argements:
+    ./setup_swift -v -v --skip-link --op-build-dir=/<some>/<path>/<to>/op-build
+
+EOF
+}
+
+
+
+###################################################################
+# Process Input Parameters
+
+# Initialize all the option variables.
+OP_BUILD_DIR=
+SKIP_LINK=0
+VERBOSE=0
+DO_CLONE=0
+
+while :; do
+  case $1 in
+    -h|-\?|--help)
+        show_help    # Display a usage synopsis.
+        exit
+        ;;
+    --op-build-dir)       # Takes an option argument; ensure it has been specified.
+        if [ "$2" ]; then
+            OP_BUILD_DIR=$2
+            shift
+        else
+            printf 'ERROR: "--op_build-dir" requires a non-empty option argument.\n'
+            exit 1
+        fi
+        ;;
+    --op-build-dir=?*)
+        OP_BUILD_DIR=${1#*=} # Delete everything up to "=" and assign the remainder.
+        ;;
+    --op-build-dir=)         # Handle the case of an empty --op-build_dir=
+        printf 'ERROR: "--op-build_dir" requires a non-empty option argument.\n'
+        exit 1
+        ;;
+    --skip-link)         # Sets SKIP_LINK variable
+        SKIP_LINK=1
+        ;;
+    -v|--verbose)
+        VERBOSE=$((VERBOSE + 1))  # Each -v adds 1 to verbosity.
+        ;;
+    --)              # End of all options.
+        shift
+        break
+        ;;
+    -?*)
+        printf 'ERROR: Unknown option: %s\n' "$1" >&2
+        exit 1
+        ;;
+    *)               # Default case: No more options, so break out of the loop.
+        break
+  esac
+
+  shift
+done
+
+
+###################################################################
+echo "Setting up Swift Config Files ...";
+
+
+# check OP_BUILD_DIR
+if [ ! $OP_BUILD_DIR ] ; then
+  # no dir was passed in so clone to default directory
+  OP_BUILD_DIR=./op-build
+  DO_CLONE=1
+  if [ $VERBOSE -ne "0" ] ; then
+    printf "No OP_BUILD_DIR Passed in so will clone $OP_BUILD_DIR\n"
+  fi
+elif [ ! -d $OP_BUILD_DIR ]; then
+  printf "ERROR: Input OP_BULD_DIR $OP_BUILD_DIR Does Not Exist\n"
+  exit 1
+else
+  DO_CLONE=0
+  if [ $VERBOSE -ne "0" ] ; then
+    printf "Using existing OP_BUILD_DIR $OP_BUILD_DIR (no cloning)\n"
+  fi
+fi
+
+# Set these variables
+WD_FILE=${OP_BUILD_DIR}/openpower/configs/witherspoon_defconfig
+SD_FILE=swift_defconfig
+
+if [ $VERBOSE -gt "1" ] ; then
+  printf "Script Parameters:\n"
+  printf "\tOP_BUILD_DIR=$OP_BUILD_DIR\n"
+  printf "\tDO_CLONE=$DO_CLONE\n"
+  printf "\tSKIP_LINK=$SKIP_LINK\n"
+  printf "\tVERBOSE=$VERBOSE\n"
+  printf "\tWD_FILE=$WD_FILE\n"
+  printf "\tSD_FILE=$SD_FILE\n"
+fi
+
+###################################################################
+# Clone open-power/op-build.  Using master branch for now
+if [ $DO_CLONE -ne "0" ] ; then
+  if [ $VERBOSE -ne "0" ] ; then
+    printf "Cloning op-build to $OP_BUILD_DIR ... \n"
+  fi
+  git clone --recursive https://github.com/open-power/op-build.git
+fi
 
 ###################################################################
 # Create swift_defconfig from witherspoon_defconfig
@@ -68,6 +185,15 @@ sed -i '4iBR2_OPENPOWER_TARGETING_ECC_FILENAME=\"SWIFT_HB.targeting.bin.ecc\"' $
 
 ###################################################################
 # Add symbolic links inside op-build for the swift config files
-ln -fs ../../../swift_defconfig -t op-build/openpower/configs/
-ln -fs ../../../../swift.config -t op-build/openpower/configs/hostboot/
+if [ $SKIP_LINK -eq 0 ] ; then
+  if [ $VERBOSE -ne "0" ] ; then
+    printf "Setting up links for config files ...\n"
+  fi
+  ln -fs ../../../swift_defconfig -t op-build/openpower/configs/
+  ln -fs ../../../../swift.config -t op-build/openpower/configs/hostboot/
+else
+  if [ $VERBOSE -ne "0" ] ; then
+    printf "SKIPPING setting up links for config files\n"
+  fi
+fi
 

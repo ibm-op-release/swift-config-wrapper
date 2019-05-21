@@ -189,8 +189,8 @@ if [ $SKIP_LINK -eq 0 ] ; then
   if [ $VERBOSE -ne "0" ] ; then
     printf "Setting up links for config files ...\n"
   fi
-  ln -fs ../../../swift_defconfig -t op-build/openpower/configs/
-  ln -fs ../../../../swift.config -t op-build/openpower/configs/hostboot/
+  ln -fs `pwd`/swift_defconfig -t $OP_BUILD_DIR/openpower/configs/
+  ln -fs `pwd`/swift.config -t $OP_BUILD_DIR/openpower/configs/hostboot/
 else
   if [ $VERBOSE -ne "0" ] ; then
     printf "SKIPPING setting up links for config files\n"

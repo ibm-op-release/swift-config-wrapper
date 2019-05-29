@@ -16,7 +16,7 @@ cd op-build
 . op-build-env && op-build swift_defconfig && op-build
 ```
 
-### To build an image for a Swift system from an existing op-build
+### To build an image for a Swift system from an existing op-build:
 
 ```
 git clone --recursive  https://github.com/ibm-op-release/swift-config-wrapper.git
@@ -27,7 +27,7 @@ cd /<path>/<to>/<existing>/op-build
 ```
 
 
-NOTE:
-* Run "./setup_swift -h" to see all options for the setup script
+NOTES:
+* Run "./setup_swift -h" to see all of the options for the setup script.
 * See https://github.com/open-power/op-build/blob/master/README.md for more information on building an op-build repo.
 

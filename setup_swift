@@ -182,6 +182,8 @@ sed -i '4iBR2_HOSTBOOT_BINARY_WINK_FILENAME=\"p9a.ref_image.hdr.bin.ecc\"' $SD_F
 sed -i '4iBR2_OPENPOWER_TARGETING_BIN_FILENAME=\"SWIFT_HB.targeting.bin\"' $SD_FILE
 sed -i '4iBR2_OPENPOWER_TARGETING_ECC_FILENAME=\"SWIFT_HB.targeting.bin.ecc\"' $SD_FILE
 
+# 3) Add any additional swift-specific settings not found in witherspoon_defconfig
+printf "BR2_PACKAGE_OCMB_EXPLORER_FW=y" >> $SD_FILE
 
 ###################################################################
 # Add symbolic links inside op-build for the swift config files

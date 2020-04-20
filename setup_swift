@@ -3,7 +3,7 @@
 
 ###################################################################
 # Setup constant used below
-SWIFT_BR2_OPENPOWER_MACHINE_XML_VERSION=fb5926df1029d0e89034b58b0bb6a99fd789e70d
+SWIFT_BR2_OPENPOWER_MACHINE_XML_VERSION=aa00dad827e760a1c930db49b00a4b2c706aeffd
 
 ###################################################################
 # Exit from the script on any fail
